@@ -280,7 +280,10 @@ const App = () => {
             {files.length} archivo{files.length === 1 ? "" : "s"} seleccionado{files.length === 1 ? "" : "s"}
           </p>
           <p className="text-sm text-foreground-400">
-            0/{files.length} archivos enviados
+            {
+              fileActive ? `${files.findIndex(f => f === fileActive)}` : "0"
+            }
+            /{files.length} archivos enviados
           </p>
         </div>
 
