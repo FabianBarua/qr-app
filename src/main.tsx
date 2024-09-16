@@ -1,6 +1,8 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { Route, Switch, useParams } from "wouter";
+import App from './App';
+import { Providers } from './components/Provider';
 
 const links = [{
   id: "1",
@@ -29,14 +31,13 @@ const ToRedirect = () => {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <>
-    <div className="main">
-      <Switch>
-        <Route path="/:id" component={ToRedirect} />
-        <Route>
-          <h1>404 - Not Found</h1>
-        </Route>
-      </Switch>
-    </div>
-  </>
+  <Providers>
+    <Switch>
+      <Route path="/:id" component={ToRedirect} />
+      <Route>
+        <App />
+      </Route>
+    </Switch>
+  </Providers>
 )
+
