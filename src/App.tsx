@@ -108,16 +108,67 @@ const NoFiles = () => (
 );
 
 const App = () => {
-  const TOKEN = import.meta.env.VITE_DROPBOX_TOKEN
+  const [TOKEN, setTOKEN] = useState("")
   const fileInput = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [progresses, setProgresses] = useState<{ [key: number]: number }>({});
-
   const [fileActive, setFileActive] = useState<File | null>(null);
+  const [failedFiles, setFailedFiles] = useState<File[]>([]);
 
-  // modal
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
+
+  const isValidToken = async (token: string) => {
+
+    try {
+      await axios.post("https://api.dropboxapi.com/2/users/get_current_account", null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+      return true;
+    }
+    catch (error) {
+      console.error("Token inválido", error)
+      return false
+    }
+
+  }
+
+  const refreshToken = async () => {
+
+    const refresh_token = import.meta.env.VITE_REFRESH_TOKEN
+    const grant_type = "refresh_token"
+    const client_id = import.meta.env.VITE_CLIENT_ID
+    const client_secret = import.meta.env.VITE_CLIENT_SECRET
+    const finalUrl = `https://api.dropbox.com/oauth2/token?refresh_token=${refresh_token}&grant_type=${grant_type}&client_id=${client_id}&client_secret=${client_secret}`
+
+    axios.post(finalUrl).then((response) => {
+      setTOKEN(response.data.access_token)
+      localStorage.setItem("token", response.data.access_token)
+    })
+
+  }
+
+
+  useEffect(() => {
+
+    const init = async () => {
+
+      const storagedToken = localStorage.getItem("token")
+
+      if (storagedToken && await isValidToken(storagedToken)) {
+        setTOKEN(storagedToken)
+      } else {
+        refreshToken()
+      }
+
+    }
+
+    init()
+
+  }, [])
 
   useEffect(() => {
     setFileActive(files[0] || null);
@@ -125,17 +176,26 @@ const App = () => {
 
   const startUpload = async () => {
     setIsLoading(true);
+    setFailedFiles([]); // Limpiar lista de archivos fallidos
 
     for (const [index, file] of files.entries()) {
-      const sessionId = await getSessionId(TOKEN);
+      try {
+        const sessionId = await getSessionId(TOKEN);
 
-      await uploadFile(file, sessionId, (file) => {
-        setFileActive(file);
-      }, TOKEN, (progress) => {
-        setProgresses(current => ({ ...current, [index]: progress }));
-      });
+        await uploadFile(
+          file,
+          sessionId,
+          (file) => setFileActive(file),
+          TOKEN,
+          (progress) => setProgresses(current => ({ ...current, [index]: progress })),
+        );
 
+      } catch (error) {
+        console.error(`Error al cargar el archivo ${file.name}:`, error);
+        setFailedFiles(current => [...current, file]); // Agregar a la lista de archivos fallidos
+      }
     }
+
     onOpen()
     confetti({
       particleCount: 100,
@@ -153,31 +213,29 @@ const App = () => {
   };
 
   return (<>
-    <Modal
-      isOpen={isOpen}
-      placement="bottom-center"
-      onOpenChange={onOpenChange}
-    >
+    <Modal isOpen={isOpen} placement="bottom-center" onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">Archivos enviados!</ModalHeader>
             <ModalBody>
-
-              <p>
-                Felicidades, tus archivos han sido enviados correctamente.
-              </p>
-
+              {failedFiles.length > 0 ? (
+                <p>Algunos archivos no pudieron cargarse:</p>
+              ) : (
+                <p>Felicidades, tus archivos han sido enviados correctamente.</p>
+              )}
+              {failedFiles.map(file => (
+                <p key={file.name}>{file.name}</p>
+              ))}
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onPress={onClose}>
-                Aceptar
-              </Button>
+              <Button color="primary" onPress={onClose}>Aceptar</Button>
             </ModalFooter>
           </>
         )}
       </ModalContent>
     </Modal>
+
     <div className="h-dvh max-w-xl mx-auto">
       <div className="rounded-b-[50px] bg-default-50 h-[30%] flex justify-center items-center flex-col gap-5">
         <h1 className="max-w-96 text-3xl text-center text-balance">
@@ -264,7 +322,7 @@ const App = () => {
                 }}
               >
                 {
-                  progresses[index] === 100 ? <Check size={16} /> : <X size={16} />
+                  progresses[index] === 100 ? failedFiles.find(f => f === file) ? <X size={16} /> : <Check size={16} /> : <X size={16} />
                 }
               </Button>
             </div>

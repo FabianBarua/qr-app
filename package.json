@@ -15,6 +15,7 @@
     "@nextui-org/theme": "^2.2.11",
     "axios": "^1.7.7",
     "canvas-confetti": "^1.9.3",
+    "dropbox": "^10.34.0",
     "framer-motion": "^11.5.4",
     "lucide": "^0.441.0",
     "lucide-react": "^0.441.0",
