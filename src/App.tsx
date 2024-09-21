@@ -264,7 +264,7 @@ const App = () => {
           multiple
         />
 
-       <div className=" flex gap-4">
+       <div className=" flex gap-2 flex-wrap mx-auto sm:flex-row flex-col justify-center">
        <Button
           color="primary"
           onClick={() => {
