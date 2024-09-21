@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import './App.css';
 import { Button, ScrollShadow, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
-import { Upload, X, Check } from 'lucide-react';
+import { Upload, X, Check, ExternalLink } from 'lucide-react';
 import axios from 'axios';
 import confetti from 'canvas-confetti';
 
@@ -242,6 +242,7 @@ const App = () => {
           Sube tus fotos o videos en <span className="font-bold">nuestra galería</span>
         </h1>
 
+
         <input
           id="file"
           type="file"
@@ -263,7 +264,8 @@ const App = () => {
           multiple
         />
 
-        <Button
+       <div className=" flex gap-4">
+       <Button
           color="primary"
           onClick={() => {
             if (fileInput.current) {
@@ -274,6 +276,23 @@ const App = () => {
         >
           Seleccionar archivos
         </Button>
+        <Button
+          color="default"
+          variant="flat"
+
+          onClick={
+            ()=>{
+              window.open("https://210924.vercel.app/")
+            }
+          }
+          
+          endContent={<ExternalLink size={16} />}
+        >
+          Ver fotos subidas
+        </Button>
+
+       </div>
+        
       </div>
 
       <ScrollShadow hideScrollBar className="overflow-y-auto h-[calc(100%-36%)] flex-col gap-2 p-5 flex relative">
