@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import './App.css';
 import { Button, ScrollShadow, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
-import { Upload, X, Check, ExternalLink } from 'lucide-react';
+import { Upload, X, Check } from 'lucide-react';
 import axios from 'axios';
 import confetti from 'canvas-confetti';
 
