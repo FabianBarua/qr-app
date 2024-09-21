@@ -276,20 +276,7 @@ const App = () => {
         >
           Seleccionar archivos
         </Button>
-        <Button
-          color="default"
-          variant="flat"
 
-          onClick={
-            ()=>{
-              window.open("https://210924.vercel.app/")
-            }
-          }
-          
-          endContent={<ExternalLink size={16} />}
-        >
-          Ver fotos subidas
-        </Button>
 
        </div>
         
